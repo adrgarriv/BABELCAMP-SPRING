@@ -1,6 +1,8 @@
 package controller;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,10 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import converters.ConversorEntityDto;
+import dto.CuentaDto;
 import dto.MovimientoDto;
 import service.CajeroService;
 
@@ -23,36 +26,60 @@ public class CajeroController
 {
 	@Autowired
 	CajeroService s;
+	@Autowired
+	ConversorEntityDto conversorEntityDto;
 	
-	@PostMapping("Login")
-	public String validarCuenta(@RequestParam("numeroCuenta") int numeroCuenta)  
+	@PostMapping(value="Login",produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody CuentaDto validarCuenta(@RequestParam("numeroCuenta") int numeroCuenta)  
 	{
+		System.out.println("AAAAAAAAAAAAAA");
 		if(s.validarCuenta(numeroCuenta)!=null)
 		{
-			return "menu";
+			return s.validarCuenta(numeroCuenta);
 		}
 		else
 		{
-			return "error";
+			return null;
 		}
 	}
 	
-	@PostMapping("Ingreso")
-	public void ingresarDinero(@RequestParam("numeroCuenta") int numeroCuenta, @RequestParam("cantidad") double cantidad)
+	@PostMapping(value ="Ingreso",produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody Map<String,Boolean> ingresarDinero(@RequestParam("numeroCuenta") int numeroCuenta, @RequestParam("cantidad") double cantidad)
 	{
-		s.ingresarDinero(numeroCuenta, cantidad);
+		if(s.ingresarDinero(numeroCuenta, cantidad))
+		{
+			return Collections.singletonMap("exito", true);
+		}
+		else
+		{
+			return Collections.singletonMap("fallo", false);
+		}
 	}
 	
-	@PostMapping("Retirada")
-	public void sacarDinero(@RequestParam("numeroCuenta") int numeroCuenta, @RequestParam("cantidad") double cantidad)
+	@PostMapping(value="Retirada",produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody Map<String,Boolean> sacarDinero(@RequestParam("numeroCuenta") int numeroCuenta, @RequestParam("cantidad") double cantidad)
 	{
-		s.sacarDinero(numeroCuenta, cantidad);
+		if(s.sacarDinero(numeroCuenta, cantidad))
+		{
+			return Collections.singletonMap("exito", true);
+		}
+		else
+		{
+			return Collections.singletonMap("fallo", false);
+		}
 	}
 	
-	@PostMapping("Transferencia")
-	public void transferencia(@RequestParam("numeroCuentaO") int numeroCuentaO,@RequestParam("numeroCuentaD") int numeroCuentaD, @RequestParam("cantidad") double cantidad)
+	@PostMapping(value="Transferencia",produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody  Map<String,Boolean>  transferencia(@RequestParam("numeroCuentaO") int numeroCuentaO,@RequestParam("numeroCuentaD") int numeroCuentaD, @RequestParam("cantidad") double cantidad)
 	{
-		s.transferencia(numeroCuentaO, numeroCuentaD, cantidad);
+		if(s.transferencia(numeroCuentaO, numeroCuentaD, cantidad))
+		{
+			return Collections.singletonMap("exito", true);
+		}
+		else
+		{
+			return Collections.singletonMap("fallo", false);
+		}
 	}
 	
 	@GetMapping(value="Movimientos",produces=MediaType.APPLICATION_JSON_VALUE)
